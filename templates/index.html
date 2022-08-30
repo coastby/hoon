@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <title>Hoon's shop</title>
+
+    <meta property="og:title" content="훈이 쇼핑몰" />
+    <meta property="og:description" content="훈이의 귀여움을 구입하세요!" />
+    <meta property="og:image" content="{{ url_for('static', filename='ogimage.jpeg') }}" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
+        * {
+            font-family: 'Do Hyeon', sans-serif;
+        }
+        .wrap {
+            width: 600px;
+            margin: auto;
+            display : block;
+        }
+
+        #cat {
+            width: 300px;
+            margin: 30px auto;
+            display : block;
+            border-radius: 20px;
+            box-shadow: 5px 5px 5px grey;
+        }
+        .price {
+            font-size: small;
+            font-weight: lighter;
+        }
+        #order {
+            width: 100px;
+            margin: auto;
+            display: block;
+            background-color : dodgerblue;
+            color: white;
+            border : none;
+            border-radius: 3px;
+        }
+        #exchange {
+            color : blue;
+        }
+
+        #order_table {
+            width: 600px;
+            margin: 100px auto;
+            display : block;
+        }
+
+    </style>
+    <script>
+        function good() {
+            alert('주문이 완료되었습니다.');
+        }
+
+        $(document).ready(function () {
+            q1();
+            order_listing()
+        });
+
+        function q1 () {
+            $.ajax({
+          type: "GET",
+          url: "http://spartacodingclub.shop/sparta_api/rate",
+          data: {},
+          success: function(response){
+             let rate = response['rate']
+              let temp_html = `<p>달러-원 환율 : ${rate}</p>`
+              $('#exchange').append(temp_html)
+            }
+          })
+        }
+
+         function order_listing() {
+             // 주문목록 보기 API 연결
+             $.ajax({
+                 type: "GET",
+                 url: "/order",
+                 data: {},
+                 success: function (response) {
+                     let orders = response['orderList']
+                     for (i = 0; i < orders.length; i++){
+                         let name = orders[i]['name']
+                         let addr = orders[i]['address']
+                         let phone = orders[i]['phone']
+                         let quan = orders[i]['quantity']
+
+                         let temp_html = `<tr>
+                                            <th scope="row">${name}</th>
+                                            <td>${quan}</td>
+                                            <td>${addr}</td>
+                                            <td>${phone}</td>
+                                        </tr>
+                         `
+                         $('#orderTableList').append(temp_html);
+                     }
+                 }
+             })
+         }
+
+        function order() {
+            // 주문하기 API 연결
+            let name = $('#exampleFormControlInput1').val();
+            let quantity = $('#exampleFormControlSelect1').val();
+            let address = $('#exampleFormControlInput2').val();
+            let phone = $('#exampleFormControlInput3').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/order",
+                data: {name_give: name, quan_give : quantity, addr_give : address, phone_give : phone},
+                success: function (response) { // 성공하면
+                    alert(response["msg"]);
+                }
+            })
+            window.location.reload()
+        }
+    </script>
+</head>
+
+<body>
+    <div class="wrap">
+        <img src="https://velog.velcdn.com/images/coastby/post/6dcaa60e-a012-4f65-b8fe-35ea92c6d35b/image.jpeg" id="cat" alt="hoon">
+        <h2>상품 제목 <span class="price">가격 : 1,000,000,000,000원 / 훈</span></h2>
+        <p>이 상품으로 말할 것 같으면 저 세상에서도 보기힘든 귀여운 고양이입니다. 아기같은 매력과 중후한 매력이 함께있는 보기드문 고양이입니다.</p>
+        <br>
+        <div id="exchange"></div>
+        <h2>주문하기</h2>
+        <div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1">주문자 성함 : </label>
+                <input type="text" class="form-control" id="exampleFormControlInput1">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">수량 : </label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput2">주소 : </label>
+                <input type="text" class="form-control" id="exampleFormControlInput2">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput3">전화번호 : </label>
+                <input type="tel" class="form-control" id="exampleFormControlInput3">
+            </div>
+        </div>
+        <button id="order" onclick="order()">주문하기</button>
+    </div>
+
+    <div id="order_table">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">이름</th>
+                <th scope="col">수량</th>
+                <th scope="col">주소</th>
+                <th scope="col">전화번호</th>
+            </tr>
+            </thead>
+            <tbody id="orderTableList">
+<!--            <tr>-->
+<!--                <th scope="row">1</th>-->
+<!--                <td>Mark</td>-->
+<!--                <td>Otto</td>-->
+<!--                <td>@mdo</td>-->
+<!--            </tr>-->
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
